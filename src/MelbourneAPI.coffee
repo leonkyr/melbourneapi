@@ -1,12 +1,17 @@
 EventService = require './services/eventService'
 RequestValidationService = require './services/requestValidationService'
 PaymentProcessor = require './paymentProcessor'
+IAMService = require './services/iamService'
+async = require 'async'
+PaymentAccountService = require './services/paymentAccountService'
 
 module.exports = class MelbourneAPI
   constructor: ->
-    @eventService = new EventService()
-    @requestValidationService = new RequestValidationService()
-    @paymentProcessor = new PaymentProcessor()
+    @eventService = new EventService
+    @requestValidationService = new RequestValidationService
+    @paymentProcessor = new PaymentProcessor
+    @iamService = new IAMService
+    @paymentAccountService = new PaymentAccountService
 
   pay: (request, cb) ->
 
@@ -15,11 +20,16 @@ module.exports = class MelbourneAPI
     @eventService.event (@payRequestReceivedEvent request)
 
     # authenticate a merchant
-    # tokenize payment account
-    # queue payment for processing without payment account
-    @paymentProcessor.pay request, (error, result) ->
+    @iamService.authenticateMerchant request.merchant, (error, result) ->
+
+      # tokenize payment account
+      token = @paymentAccountService.tokenize request.payment_account
+      request.payment_account = {'token': token}
+
+      @paymentProcessor.pay request, (error, result) ->
 #      @eventService.event (@paymentProcessedEvent result)
-      cb error, result
+        cb error, result
+
 
   payRequestReceivedEvent: (request) ->
     {

@@ -1,4 +1,4 @@
-MelbourneAPI = require '../src/melbourne_api'
+MelbourneAPI = require '../src/MelbourneAPI'
 expect = require 'expect'
 should = require 'should'
 assert = require 'assert'
@@ -46,7 +46,6 @@ describe 'Melbourne API Core', ->
           assert result.status
           result.status.should.equal 'accepted'
 
-
     it 'Repeat purchase', ->
       api = new MelbourneAPI()
 
@@ -56,7 +55,8 @@ describe 'Melbourne API Core', ->
           key: '123123123123',
         },
         user: {
-          merchant_user_id: '0001-0001-0001-0001'
+          merchant_user_id: '0001-0001-0001-0001',
+          email: 'test@test.com',
         },
         payment_account: {
           type: 'card',
@@ -68,6 +68,7 @@ describe 'Melbourne API Core', ->
             value: 12345,
             currency: 'EUR',
           },
+          description: 'Purchase from ABAZON.COM'
         },
         purchase: {
           ip_address: '1.1.1.1',

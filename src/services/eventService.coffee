@@ -1,7 +1,7 @@
 AWS = require('aws-sdk');
 
 module.exports = class EventService
-  constructor: () ->
+  constructor: ->
     AWS.config.region = 'eu-central-1';
 
   event: (event)->

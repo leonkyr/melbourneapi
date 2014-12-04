@@ -1,10 +1,12 @@
 EventService = require './services/eventService'
 RequestValidationService = require './services/requestValidationService'
+PaymentProcessor = require './paymentProcessor'
 
 module.exports = class MelbourneAPI
-  constructor: () ->
+  constructor: ->
     @eventService = new EventService()
     @requestValidationService = new RequestValidationService()
+    @paymentProcessor = new PaymentProcessor()
 
   pay: (request, cb) ->
 
@@ -15,21 +17,9 @@ module.exports = class MelbourneAPI
     # authenticate a merchant
     # tokenize payment account
     # queue payment for processing without payment account
-    # when our payment is processed - execute cb
-
-    @eventService.event (@paymentProcessedEvent request)
-
-    cb null, {
-      melbourne_payment_token: 'payment-001',
-      status: 'accepted',
-      auth_code: 0,
-      payment_account: {
-        token: '12312312312312312',
-      },
-      order: {
-        id: 'order-0001',
-      }
-    }
+    @paymentProcessor.pay request, (error, result) ->
+#      @eventService.event (@paymentProcessedEvent result)
+      cb error, result
 
   payRequestReceivedEvent: (request) ->
     {
@@ -37,8 +27,7 @@ module.exports = class MelbourneAPI
       merchant_id: request.merchant.id
     }
 
-  paymentProcessedEvent: (request) ->
+  paymentProcessedEvent: (result) ->
     {
       type: 'pay-processed',
-      merchant_id: request.merchant.id
     }

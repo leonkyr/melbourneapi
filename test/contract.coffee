@@ -1,12 +1,15 @@
-api = require '../src/melbourne_api'
+MelbourneAPI = require '../src/melbourne_api'
 expect = require 'expect'
 should = require 'should'
+assert = require 'assert'
 
 describe 'Melbourne API Core', ->
   describe 'Simplest Pay call', ->
 
     it 'Initial Payment Request with all new objects', ->
-      result = api.pay [
+      api = new MelbourneAPI()
+
+      api.pay [
         merchant : {
           id: 'test-merchant-01',
           key: '123123123123',
@@ -17,6 +20,7 @@ describe 'Melbourne API Core', ->
         },
         payment_account: {
           type: 'card',
+          tokenize: true,
           parameters: [
             { name: 'number', value: '4111111111111111' },
             { name: 'holder_name', value: 'John Down' },
@@ -34,12 +38,16 @@ describe 'Melbourne API Core', ->
           ip_address: '1.1.1.1',
         },
         signature: 'md5hash-of-some-important-parameters'
-      ]
+      ], (error, result) ->
+          assert result
+          assert result.status
+          result.status.should.equal 'accepted'
 
-      console.log result
 
     it 'Repeat purchase', ->
-      result = api.pay [
+      api = new MelbourneAPI()
+
+      api.pay [
         merchant : {
           id: 'test-merchant-01',
           key: '123123123123',
@@ -60,6 +68,7 @@ describe 'Melbourne API Core', ->
           ip_address: '1.1.1.1',
         },
         signature: 'md5hash-of-some-important-parameters'
-      ]
-
-      console.log result
+      ], (error, result) ->
+        assert result
+        assert result.status
+        result.status.should.equal 'accepted'
